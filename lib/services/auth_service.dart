@@ -12,19 +12,23 @@ class AuthService {
         password: data['password'],
       );
       await db.addUser(data, context);
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const Dashboard()),
-      );
+      if (context.mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const Dashboard()),
+        );
+      }
     } catch (e) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text("Sign Up Failed"),
-            content: Text(e.toString()),
-          );
-        },
-      );
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Sign Up Failed"),
+              content: Text(e.toString()),
+            );
+          },
+        );
+      }
     }
   }
 
@@ -34,19 +38,23 @@ class AuthService {
         email: data['email'],
         password: data['password'],
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const Dashboard()),
-      );
+      if (context.mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Dashboard()),
+        );
+      }
     } catch (e) {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text("Login Error"),
-              content: Text(e.toString()),
-            );
-          });
+      if (context.mounted) {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text("Login Error"),
+                content: Text(e.toString()),
+              );
+            });
+      }
     }
   }
 }

@@ -38,6 +38,16 @@ class Navbar extends StatelessWidget {
           ),
           label: 'Transaction',
         ),
+        NavigationDestination(
+          selectedIcon: Icon(
+            Icons.explore,
+            color: Colors.white,
+          ),
+          icon: Icon(
+            Icons.bar_chart,
+          ),
+          label: 'Chart',
+        ),
       ],
     );
   }

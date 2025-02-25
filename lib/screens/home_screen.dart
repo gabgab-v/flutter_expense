@@ -81,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
             HeroCard(
               userId: userId,
             ),
-            TransactionsCard()
+            const TransactionsCard()
           ],
         ),
       ),

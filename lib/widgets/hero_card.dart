@@ -10,12 +10,18 @@ class HeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Stream<DocumentSnapshot> usersStream =
-        FirebaseFirestore.instance.collection('users').doc(userId).snapshots();
-    return StreamBuilder<DocumentSnapshot>(
+    final Stream<DocumentSnapshot<Map<String, dynamic>>> usersStream =
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .snapshots()
+            .map((snapshot) =>
+                snapshot);
+
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream: usersStream,
-      builder:
-          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+      builder: (BuildContext context,
+          AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> snapshot) {
         if (snapshot.hasError) {
           return const Text('Something went wrong');
         }
@@ -28,7 +34,11 @@ class HeroCard extends StatelessWidget {
           return const Text("Loading");
         }
 
-        var data = snapshot.data!.data() as Map<String, dynamic>;
+        var data = snapshot.data!.data();
+
+        if (data == null) {
+          return const Text("No data found");
+        }
 
         return Cards(
           data: data,

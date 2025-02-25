@@ -3,46 +3,35 @@ import 'package:expense_tracker_new/widgets/transaction_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class TransactionsCard extends StatelessWidget {
-  const TransactionsCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        children: [
-          const Row(
-            children: [
-              Text(
-                "Recent Transactions",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-              )
-            ],
-          ),
-          RecentTransactionsList(),
-        ],
-      ),
-    );
-  }
-}
-
-class RecentTransactionsList extends StatelessWidget {
-  RecentTransactionsList({
-    super.key,
-  });
+class TransactionList extends StatelessWidget {
+  TransactionList(
+      {super.key,
+      required this.category,
+      required this.type,
+      required this.monthYear});
 
   final userId = FirebaseAuth.instance.currentUser!.uid;
+
+  final String category;
+  final String type;
+  final String monthYear;
+
   @override
   Widget build(BuildContext context) {
+    Query query = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection("transactions")
+        .orderBy('timestamp', descending: false)
+        .where('monthyear', isEqualTo: monthYear)
+        .where('type', isEqualTo: type);
+
+    if (category != 'All') {
+      query = query.where('category', isEqualTo: category);
+    }
+
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection("transactions")
-          .orderBy('timestamp', descending: true)
-          .limit(20)
-          .snapshots(),
+      stream: query.limit(150).snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
           return const Text('Something went wrong');

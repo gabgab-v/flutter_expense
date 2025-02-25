@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'expense-tracker-bb8f3.firebasestorage.app',
     measurementId: 'G-6R7MWERWLV',
   );
+
 }

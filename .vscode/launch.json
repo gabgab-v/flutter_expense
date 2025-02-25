@@ -2,24 +2,25 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "expense_tracker_new",
+            "name": "expense_tracker_new (Web - Edge)",
             "request": "launch",
             "type": "dart",
-            "deviceId": "windows"
+            "flutterMode": "debug",
+            "deviceId": "edge"
         },
         {
-            "name": "expense_tracker_new (profile mode)",
+            "name": "expense_tracker_new (Web - Edge Profile Mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile",
-            "deviceId": "windows"
+            "deviceId": "edge"
         },
         {
-            "name": "expense_tracker_new (release mode)",
+            "name": "expense_tracker_new (Web - Edge Release Mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release",
-            "deviceId": "windows"
+            "deviceId": "edge"
         }
     ]
 }

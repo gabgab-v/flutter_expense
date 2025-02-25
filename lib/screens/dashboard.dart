@@ -1,3 +1,4 @@
+import 'package:expense_tracker_new/screens/chart_screen.dart';
 import 'package:expense_tracker_new/screens/home_screen.dart';
 import 'package:expense_tracker_new/screens/transaction_screen.dart';
 import 'package:expense_tracker_new/widgets/navbar.dart';
@@ -13,9 +14,8 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   var isLogoutLoading = false;
   int currentIndex = 0;
-  var pageViewList = [const HomeScreen(), const TransactionScreen()];
+  var pageViewList = [const HomeScreen(), const TransactionScreen(), const ChartScreen()];
 
- 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +26,6 @@ class _DashboardState extends State<Dashboard> {
               currentIndex = value;
             });
           }),
-      
       body: pageViewList[currentIndex],
     );
   }
