@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_tracker_new/utils/icons_list.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +13,187 @@ class TransactionCard extends StatelessWidget {
 
   final dynamic data;
   var appIcons = AppIcons();
+
+  // Function to delete transaction
+  void _deleteTransaction(
+      BuildContext context, Map<String, dynamic>? data) async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Error: User not logged in")),
+      );
+      return;
+    }
+
+    if (data == null ||
+        !data.containsKey('id') ||
+        !data.containsKey('amount') ||
+        !data.containsKey('timestamp') ||
+        !data.containsKey('type')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Error: Invalid transaction data")),
+      );
+      return;
+    }
+
+    bool isDeleting = false; // Flag to prevent multiple clicks
+
+    // Show confirmation dialog
+    bool? confirmDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Delete Transaction"),
+        content:
+            const Text("Are you sure you want to delete this transaction?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmDelete != true) return; // If the user cancels, stop execution
+
+    try {
+      isDeleting = true; // Set flag to prevent multiple deletes
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      final transactionRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection("transactions");
+
+      // Get the transaction document
+      DocumentSnapshot transactionDoc;
+      try {
+        transactionDoc = await transactionRef.doc(data['id']).get();
+        if (!transactionDoc.exists) throw "Transaction not found";
+      } catch (e) {
+        throw "Failed to retrieve transaction: $e";
+      }
+
+      double transactionAmount = data['amount'].toDouble();
+      bool isCredit = data['type'] == 'credit';
+
+      // Find the previous transaction (before this one)
+      QuerySnapshot previousTransactions;
+      double previousRemainingAmount = 0;
+
+      try {
+        previousTransactions = await transactionRef
+            .orderBy('timestamp', descending: true)
+            .where('timestamp', isLessThan: data['timestamp'])
+            .limit(1)
+            .get();
+
+        if (previousTransactions.docs.isNotEmpty) {
+          previousRemainingAmount =
+              previousTransactions.docs.first['remainingAmount'].toDouble();
+        }
+      } catch (e) {
+        throw "Error fetching previous transactions: $e";
+      }
+
+      // Get all transactions after this one
+      QuerySnapshot futureTransactions;
+      try {
+        futureTransactions = await transactionRef
+            .orderBy('timestamp')
+            .where('timestamp', isGreaterThan: data['timestamp'])
+            .get();
+      } catch (e) {
+        throw "Error fetching future transactions: $e";
+      }
+
+      // Update remainingAmount for future transactions
+      try {
+        for (var doc in futureTransactions.docs) {
+          double newRemainingAmount = doc['remainingAmount'].toDouble();
+          if (isCredit) {
+            newRemainingAmount -= transactionAmount;
+          } else {
+            newRemainingAmount += transactionAmount;
+          }
+          await transactionRef
+              .doc(doc.id)
+              .update({'remainingAmount': newRemainingAmount});
+        }
+      } catch (e) {
+        throw "Error updating future transactions: $e";
+      }
+
+      // user's main remainingAmount, totalCredit, and totalDebit
+      try {
+        final userDocRef =
+            FirebaseFirestore.instance.collection('users').doc(userId);
+        final userDoc = await userDocRef.get();
+
+        if (userDoc.exists) {
+          int remainingAmount = userDoc['remainingAmount'];
+          int totalCredit = userDoc['totalCredit'];
+          int totalDebit = userDoc['totalDebit'];
+
+          // Prevent deletion if removing the credit will cause negative balance
+          if (isCredit && remainingAmount - transactionAmount.toInt() < 0) {
+            Navigator.pop(context); // Close loading dialog
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text(
+                      "Error: Cannot delete this transaction as it will result in a negative balance.")),
+            );
+            return;
+          }
+
+          if (isCredit) {
+            remainingAmount -= transactionAmount.toInt();
+            totalCredit -= transactionAmount.toInt();
+          } else {
+            remainingAmount += transactionAmount.toInt();
+            totalDebit -= transactionAmount.toInt();
+          }
+
+          await userDocRef.update({
+            "remainingAmount": remainingAmount,
+            "totalCredit": totalCredit,
+            "totalDebit": totalDebit,
+            "updatedAt": DateTime.now().millisecondsSinceEpoch,
+          });
+        }
+      } catch (e) {
+        throw "Error updating user's remaining balance: $e";
+      }
+
+      // Delete the transaction
+      try {
+        await transactionRef.doc(data['id']).delete();
+      } catch (e) {
+        throw "Error deleting transaction: $e";
+      }
+
+      Navigator.pop(context); // Close loading dialog
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Transaction deleted successfully")),
+      );
+    } catch (error) {
+      Navigator.pop(context); // Close loading dialog if an error occurs
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $error")),
+      );
+    } finally {
+      isDeleting = false; // Reset flag
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,8 +268,17 @@ class TransactionCard extends StatelessWidget {
                 style: const TextStyle(
                   color: Colors.grey,
                 ),
-              )
+              ),
             ],
+          ),
+          trailing: IconButton(
+            icon: Icon(
+              Icons.delete,
+              color: Colors.red,
+            ),
+            onPressed: () {
+              _deleteTransaction(context, data.data() as Map<String, dynamic>?);
+            },
           ),
         ),
       ),

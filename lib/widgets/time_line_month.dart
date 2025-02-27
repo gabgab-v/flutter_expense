@@ -34,7 +34,7 @@ class _TimeLineMonthState extends State<TimeLineMonth> {
     if (selectedMonthIndex != -1) {
       final scrollOffset = (selectedMonthIndex * 100.0) - 170;
       scrollController.animateTo(scrollOffset,
-          duration: const Duration(milliseconds: 500), curve: Curves.ease);
+          duration: Duration(milliseconds: 500), curve: Curves.ease);
     }
   }
 

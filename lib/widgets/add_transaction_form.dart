@@ -46,6 +46,19 @@ class _AddTransactionFormState extends State<AddTransactionForm> {
       int totalCredit = userDoc['totalCredit'];
       int totalDebit = userDoc['totalDebit'];
 
+      if (type == 'debit' && remainingAmount < amount) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Error: Insufficient balance for this transaction"),
+            backgroundColor: Colors.red,
+          ),
+        );
+        setState(() {
+          isLoader = false;
+        });
+        return; // Stop execution if balance is insufficient
+      }
+
       if (type == 'credit') {
         remainingAmount += amount;
         totalCredit += amount;

@@ -15,8 +15,7 @@ class HeroCard extends StatelessWidget {
             .collection('users')
             .doc(userId)
             .snapshots()
-            .map((snapshot) =>
-                snapshot);
+            .map((snapshot) => snapshot);
 
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream: usersStream,
@@ -75,7 +74,7 @@ class Cards extends StatelessWidget {
                       fontWeight: FontWeight.w600),
                 ),
                 Text(
-                  "P ${data['remainingAmount']}",
+                  "P ${data['remainingAmount'] < 0 ? 0 : data['remainingAmount']}",
                   style: const TextStyle(
                       fontSize: 44,
                       color: Colors.white,
