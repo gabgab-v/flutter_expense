@@ -65,6 +65,16 @@ class Cards extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  "Hello, ${data['username'] ?? 'User'}", // Ensure it doesn't crash if username is missing
+                  style: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 5), // Add spacing
+
                 const Text(
                   "Total Balance",
                   style: TextStyle(

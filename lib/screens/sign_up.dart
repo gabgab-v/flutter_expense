@@ -43,7 +43,7 @@ class _SignUpViewState extends State<SignUpView> {
 
       print("Debugging Data: $data"); // Print data before calling createUser
       await authService.createUser(data, context);
-      
+
       setState(() {
         isLoader = false;
       });
@@ -65,8 +65,50 @@ class _SignUpViewState extends State<SignUpView> {
           key: _formKey,
           child: Column(
             children: [
+              const SizedBox(height: 20.0),
+
+              // Logo and Title
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle, // Ensures the text fits well
+                      color: Colors.white, // Background color
+                      borderRadius:
+                          BorderRadius.circular(30), // Soft rounded edges
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8), // Padding for better spacing
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          'assets/logo2.png',
+                          height: 40, // Adjust size for better fit
+                          width: 40,
+                        ),
+                        // Space between logo and text
+                        const Text(
+                          "xpensify",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color:
+                                Colors.black, // Contrast with white background
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
               const SizedBox(
-                height: 80.0,
+                height: 20.0,
               ),
               const SizedBox(
                 width: 250,

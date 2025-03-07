@@ -51,8 +51,7 @@ class _ChartScreenState extends State<ChartScreen> {
 
     for (var doc in transactionsQuery.docs) {
       DateTime date = DateTime.fromMillisecondsSinceEpoch(doc['timestamp']);
-      String day =
-          DateFormat('E').format(date); // Get day of the week (Mon, Tue, etc.)
+      String day = DateFormat('E').format(date);
       weeklyTotals[day] = (weeklyTotals[day] ?? 0) + doc['amount'];
     }
 
@@ -67,30 +66,73 @@ class _ChartScreenState extends State<ChartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.amber[200],
       appBar: AppBar(
-        title: const Text('Weekly Transactions Chart'),
+        title: const Text(
+          'Weekly Transactions',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.amber[600],
+        elevation: 0,
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SfCartesianChart(
-              title: const ChartTitle(text: 'Weekly Transactions'),
-              primaryXAxis:
-                  const CategoryAxis(title: AxisTitle(text: 'Day of the Week')),
-              primaryYAxis: const NumericAxis(title: AxisTitle(text: 'Amount')),
-              tooltipBehavior: TooltipBehavior(
-                enable: true,
-                format: 'Day: point.x\nAmount: point.y',
+      body: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.amber[600],
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
               ),
-              series: <CartesianSeries<_ChartData, String>>[
-                ColumnSeries<_ChartData, String>(
-                  dataSource: chartData,
-                  xValueMapper: (_ChartData data, _) => data.day,
-                  yValueMapper: (_ChartData data, _) => data.amount,
-                  color: Colors.blue,
-                  dataLabelSettings: const DataLabelSettings(isVisible: true),
-                ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Total Transactions',
+                    style: TextStyle(color: Colors.white, fontSize: 16)),
+                Text(
+                    'P ${chartData.fold(0.0, (sum, item) => sum + item.amount)}',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold)),
               ],
             ),
+          ),
+          Expanded(
+            child: Card(
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              elevation: 5,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : SfCartesianChart(
+                        title: const ChartTitle(text: 'Weekly Transactions'),
+                        primaryXAxis: const CategoryAxis(),
+                        primaryYAxis: const NumericAxis(),
+                        series: <CartesianSeries<_ChartData, String>>[
+                          ColumnSeries<_ChartData, String>(
+                            dataSource: chartData,
+                            xValueMapper: (_ChartData data, _) => data.day,
+                            yValueMapper: (_ChartData data, _) => data.amount,
+                            color: Colors.green[400],
+                            dataLabelSettings: const DataLabelSettings(
+                                isVisible: true,
+                                textStyle: TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

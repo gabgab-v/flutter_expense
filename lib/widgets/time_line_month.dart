@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -24,7 +26,7 @@ class _TimeLineMonthState extends State<TimeLineMonth> {
     }
     currentMonth = DateFormat('MMM y').format(now);
 
-    Future.delayed(const Duration(seconds: 1), () {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       scrollToSelecectedMonth();
     });
   }
@@ -32,9 +34,14 @@ class _TimeLineMonthState extends State<TimeLineMonth> {
   scrollToSelecectedMonth() {
     final selectedMonthIndex = months.indexOf(currentMonth);
     if (selectedMonthIndex != -1) {
-      final scrollOffset = (selectedMonthIndex * 100.0) - 170;
-      scrollController.animateTo(scrollOffset,
-          duration: Duration(milliseconds: 500), curve: Curves.ease);
+      final scrollOffset = max(
+          0,
+          min(
+            scrollController.position.maxScrollExtent,
+            (selectedMonthIndex * 100.0) - 170,
+          ));
+      scrollController.animateTo(scrollOffset.toDouble(),
+          duration: const Duration(milliseconds: 500), curve: Curves.ease);
     }
   }
 
