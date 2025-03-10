@@ -20,6 +20,7 @@ class _SignUpViewState extends State<SignUpView> {
   final _phoneController = TextEditingController();
 
   final _passwordController = TextEditingController();
+  bool _isObscured = true;
 
   var authService = AuthService();
   var isLoader = false;
@@ -155,10 +156,19 @@ class _SignUpViewState extends State<SignUpView> {
               ),
               TextFormField(
                   controller: _passwordController,
+                  obscureText: true,
                   keyboardType: TextInputType.phone,
                   style: const TextStyle(color: Colors.white),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: _buildInputDecoration("Password", Icons.lock),
+                  decoration: buildPasswordInputDecoration(
+                    label: "Password",
+                    isObscured: _isObscured,
+                    onToggleVisibility: () {
+                      setState(() {
+                        _isObscured = !_isObscured;
+                      });
+                    },
+                  ),
                   validator: appValidator.validatePassword),
               const SizedBox(
                 height: 40.0,
@@ -217,5 +227,30 @@ class _SignUpViewState extends State<SignUpView> {
         labelText: label,
         suffixIcon: Icon(suffixIcon, color: const Color(0xFF949494)),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)));
+  }
+
+  InputDecoration buildPasswordInputDecoration({
+    required String label,
+    required bool isObscured,
+    required VoidCallback onToggleVisibility,
+  }) {
+    return InputDecoration(
+      fillColor: const Color(0xAA494A59),
+      enabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0x35949494))),
+      focusedBorder:
+          const OutlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+      filled: true,
+      labelStyle: const TextStyle(color: Color(0xFF949494)),
+      labelText: label,
+      suffixIcon: IconButton(
+        icon: Icon(
+          isObscured ? Icons.visibility_off : Icons.visibility,
+          color: const Color(0xFF949494),
+        ),
+        onPressed: onToggleVisibility,
+      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),
+    );
   }
 }

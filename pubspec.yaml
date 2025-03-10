@@ -21,6 +21,15 @@ version: 1.0.0+1
 environment:
   sdk: ^3.5.3
 
+flutter_native_splash:
+  color: "#FFFFFF"  # Background color of the splash screen
+  image: assets/logo2.png  # Path to your splash screen image
+  android_12:
+    image: assets/logo2.png
+    icon_background_color: "#FFFFFF"
+  android: true
+  ios: true
+
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
@@ -43,6 +52,7 @@ dependencies:
   intl: ^0.20.2
   fl_chart: ^0.70.2
   syncfusion_flutter_charts: ^28.2.7
+  flutter_native_splash: ^2.4.5
 
 dev_dependencies:
   flutter_test:

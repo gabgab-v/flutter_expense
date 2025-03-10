@@ -84,7 +84,7 @@ class Cards extends StatelessWidget {
                       fontWeight: FontWeight.w600),
                 ),
                 Text(
-                  "P ${data['remainingAmount'] < 0 ? 0 : data['remainingAmount']}",
+                  "₱ ${data['remainingAmount'] < 0 ? 0 : data['remainingAmount']}",
                   style: const TextStyle(
                       fontSize: 44,
                       color: Colors.white,
@@ -156,7 +156,7 @@ class CardOne extends StatelessWidget {
                     style: TextStyle(color: color, fontSize: 14),
                   ),
                   Text(
-                    "P $amount",
+                    "₱ $amount",
                     style: TextStyle(
                         color: color,
                         fontSize: 30,
